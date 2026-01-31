@@ -1,11 +1,8 @@
 name = "pos-app"
 compatibility_date = "2026-01-31"
-compatibility_flags = ["nodejs_compat"]
 
-main = "_worker.js"
+[assets]
+directory = "out"
 
 [build]
 command = "npm run build"
-
-[env.production]
-vars = { NODE_ENV = "production" }

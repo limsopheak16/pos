@@ -12,6 +12,7 @@ const nextConfig = {
   images: {
     domains: ['res.cloudinary.com'],
     formats: ['image/webp', 'image/avif'],
+    unoptimized: true, // Required for static export
   },
   
   // Compiler options
@@ -19,28 +20,10 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   
-  // Headers for security
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
-        ],
-      },
-    ];
-  },
+  // Static export configuration for Pages
+  output: 'export',
+  trailingSlash: true,
+  distDir: 'out',
 };
 
 module.exports = nextConfig;
