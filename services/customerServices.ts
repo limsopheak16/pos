@@ -24,7 +24,7 @@ export const getPaginatedCustomers = async ({ pageSize = 10, currentPage = 1 }: 
         totalPages: totalPages,
         records: data.map(item => {
             return {
-                id: item.id,
+                id: parseInt(item.id),
                 firstName: item.firstName,
                 lastName: item.lastName,
                 email: item.email,

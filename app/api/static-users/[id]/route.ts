@@ -3,10 +3,11 @@ import { staticUsers } from "@/data/static-data";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = staticUsers.find(u => u.id === params.id);
+    const { id } = await params;
+    const user = staticUsers.find(u => u.id === id);
 
     if (!user) {
       return NextResponse.json(
@@ -27,14 +28,15 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const updateData = await req.json();
     
     // Simulate updating user (in static demo, just return success)
     const updatedUser = {
-      id: params.id,
+      id: id,
       ...updateData
     };
 
@@ -53,9 +55,10 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     // Simulate deleting user (in static demo, just return success)
     return NextResponse.json({ 
       message: "User deleted successfully" 

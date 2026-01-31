@@ -5,6 +5,7 @@ import React, {
   ChangeEvent,
   FormEvent,
   useEffect,
+  Suspense,
 } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -28,7 +29,7 @@ interface Errors {
   discountPercentage?: string;
 }
 
-const AddPromotion: React.FC = () => {
+const PromotionInfoContent: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     promotionCode: "",
     description: "",
@@ -245,4 +246,10 @@ const AddPromotion: React.FC = () => {
   );
 };
 
-export default AddPromotion;
+export default function PromotionInfoPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PromotionInfoContent />
+    </Suspense>
+  );
+}

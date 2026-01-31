@@ -5,6 +5,7 @@ import React, {
   ChangeEvent,
   FormEvent,
   useEffect,
+  Suspense,
 } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -30,7 +31,7 @@ interface Errors {
   address?: string;
 }
 
-const AddCustomer: React.FC = () => {
+const CustomerInfoContent: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
@@ -275,4 +276,10 @@ const AddCustomer: React.FC = () => {
   );
 };
 
-export default AddCustomer;
+export default function CustomerInfoPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CustomerInfoContent />
+    </Suspense>
+  );
+}

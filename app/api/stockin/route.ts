@@ -31,12 +31,12 @@ export async function POST(request: NextRequest) {
 
     const stockIn = await prisma.stockIn.create({
       data: {
-        supplierId,
+        supplierId: String(supplierId),
         referenceNumber,
         stockInDate,
         stockInDetails: {
           create: stockInDetails.map(item => ({
-            productId: item.productId,
+            productId: String(item.productId),
             quantity: item.quantity,
             purchaseUnitPrice: item.purchaseUnitPrice, 
             saleUnitPrice: item.saleUnitPrice,          

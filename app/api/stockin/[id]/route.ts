@@ -5,16 +5,16 @@ import { Decimal } from "@prisma/client/runtime/library";
 
 
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-    const { id } = params;
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
     try {
         const body = await request.json();
         const { supplierId, referenceNumber, stockInDate, stockInDetails } = body;
         stockInDetails.map(async (detail: StockInDetail) => {
             const result = await prisma.stockInDetail.update({
-                where: {id: detail.id},
+                where: {id: String(detail.id)},
                 data:{
-                 productId: detail.productId,
+                 productId: String(detail.productId),
                 quantity: detail.quantity,
                 purchaseUnitPrice: detail.purchaseUnitPrice.toString(), 
                 saleUnitPrice: detail.saleUnitPrice.toString(), 
@@ -25,7 +25,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         });
 
         const updateStockin = await prisma.stockIn.update({
-            where: { id: parseInt(id) },
+            where: { id: String(id) },
             data: {
                 supplierId,
                 referenceNumber,
@@ -40,15 +40,15 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
 }
 
-export async function DELETE(request:NextRequest, {params}:{params:{id:string}}) {
-    const {id}=params;
+export async function DELETE(request:NextRequest, {params}:{params:Promise<{id:string}>}) {
+    const {id}=await params;
     try{
 
         const deleteRelate= await prisma.stockInDetail.deleteMany({
-            where:{stockInId:parseInt(id)}
+            where:{stockInId:String(id)}
         })
         const deleteStockIn = await prisma.stockIn.delete({
-            where: { id: parseInt(id) },
+            where: { id: String(id) },
         });
         return NextResponse.json({ message: "deleted stock success",data: deleteStockIn  })
 
@@ -60,18 +60,18 @@ export async function DELETE(request:NextRequest, {params}:{params:{id:string}})
 }
 
 export interface StockInDetail {
-    id: number;
+    id: string;
     quantity: number;
     purchaseUnitPrice: Decimal;
     saleUnitPrice: Decimal;
     expiryDate: Date | null;
-    productId: number;
+    productId: string;
     productName: string;
 }
 
 export interface StockInMaster {
-    id: number;
-    supplierId: number;
+    id: string;
+    supplierId: string;
     referenceNumber: string;
     stockInDate: Date;
     stockInDetails: StockInDetail[];
@@ -80,13 +80,13 @@ export interface StockInMaster {
 
 
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     console.log(request)
-    const { id } = params;
+    const { id } = await params;
     try {
         const master = await prisma.stockIn.findUnique({
             where: {
-                id: parseInt(id, 10),
+                id: String(id),
             },
             include: {
                 stockInDetails: {
@@ -122,7 +122,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         }else{
             return NextResponse.json({ message: "Purchase master was not found" }, {status: 400})
         }
-
 
 
     } catch (error) {

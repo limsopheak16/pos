@@ -28,8 +28,8 @@ console.log(data)
         totalPages: totalPages,
         records: data.map(item => {
             return {
-                id: item.id,
-                supplierId: item.supplierId,
+                id: parseInt(item.id),
+                supplierId: parseInt(item.supplierId),
                 referenceNumber: item.referenceNumber,
                 stockInDate: item.stockInDate,
                 supplierName:item.supplier.supplierName,

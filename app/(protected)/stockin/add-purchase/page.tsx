@@ -116,7 +116,7 @@ export default function AddPurchasePage() {
 
     const newDetail: PurchaseDetail = {
       id: purchaseDetail.length + 1,
-      productId: selectedProduct.id,
+      productId: parseInt(selectedProduct.id),
       productName: selectedProduct.nameEn,
       qty,
       purchaseUnitPrice,

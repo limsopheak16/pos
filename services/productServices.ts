@@ -27,12 +27,13 @@ export const getPaginatedProducts = async ({ pageSize = 10, currentPage = 1 }: {
         totalPages: totalPages,
         records: data.map(item => {
             return {
-                id: item.id,
+                id: parseInt(item.id),
+                productCode: item.sku || '',
                 nameKh: item.nameKh,
                 nameEn: item.nameEn,
                 category: item.category.nameEn,
                 sku: item.sku,
-                ImageUrl: item.imageUrl ?? null,
+                imageUrl: item.imageUrl ?? null,
 
             } as productsModel;
         }),

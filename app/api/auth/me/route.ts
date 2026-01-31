@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
 
     // Fetch user from database
     const user = await prisma.user.findUnique({
-      where: { id: session.userId },
+      where: { id: String(session.userId) },
       include: { role: true },
     });
 

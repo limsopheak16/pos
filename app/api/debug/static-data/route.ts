@@ -40,7 +40,7 @@ export async function GET() {
   } catch (error) {
     console.error("Debug endpoint error:", error);
     return NextResponse.json(
-      { message: "Debug error", error: error.message },
+      { message: "Debug error", error: (error as Error).message },
       { status: 500 }
     );
   }

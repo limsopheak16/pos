@@ -58,10 +58,10 @@ export function ProfessionalDashboard() {
 
       // Add new activity
       const activities = [
-        { type: "order", message: `New order #${Math.floor(Math.random() * 9999)} - $${(Math.random() * 200 + 20).toFixed(2)}`, time: "Just now" },
-        { type: "customer", message: "New customer registered", time: "Just now" },
-        { type: "sale", message: "Flash sale started!", time: "Just now" },
-        { type: "review", message: `${Math.floor(Math.random() * 5 + 1)}-star review received`, time: "Just now" }
+        { id: Date.now(), type: "order", message: `New order #${Math.floor(Math.random() * 9999)} - $${(Math.random() * 200 + 20).toFixed(2)}`, time: "Just now" },
+        { id: Date.now() + 1, type: "customer", message: "New customer registered", time: "Just now" },
+        { id: Date.now() + 2, type: "sale", message: "Flash sale started!", time: "Just now" },
+        { id: Date.now() + 3, type: "review", message: `${Math.floor(Math.random() * 5 + 1)}-star review received`, time: "Just now" }
       ];
       
       setLiveActivity(prev => [activities[Math.floor(Math.random() * activities.length)], ...prev.slice(0, 3)]);

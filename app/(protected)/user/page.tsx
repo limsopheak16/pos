@@ -14,14 +14,20 @@ const UserPage = async ({ searchParams }: { searchParams: Promise<Record<string,
   const endIndex = startIndex + pageSize;
   const paginatedUsers = staticUsers.slice(startIndex, endIndex);
 
+  // Map static users to UserModel interface
+  const mappedUsers = paginatedUsers.map(user => ({
+    ...user,
+    imageUrl: user.imageUrl || undefined // Convert null to undefined
+  }));
+
   const data = {
     pageSize,
     currentPage: page,
-    prevPage: page > 1 ? page - 1 : null,
-    nextPage: endIndex < staticUsers.length ? page + 1 : null,
+    prevPage: page > 1 ? page - 1 : 0,
+    nextPage: endIndex < staticUsers.length ? page + 1 : 0,
     totalItems: staticUsers.length,
     totalPages: Math.ceil(staticUsers.length / pageSize),
-    records: paginatedUsers
+    records: mappedUsers
   };
 
   return <PageWrapper>

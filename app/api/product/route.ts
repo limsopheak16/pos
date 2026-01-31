@@ -48,8 +48,8 @@ export async function POST(request: NextRequest) {
         categoryId: categoryId,
         sku,
         imageUrl: imageUrl, // Save Cloudinary URL
-        createdBy: session?.userId,
-        updatedBy: session?.userId,
+        createdBy: String(session?.userId),
+        updatedBy: String(session?.userId),
       },
     });
 

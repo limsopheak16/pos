@@ -24,12 +24,13 @@ export const getPaginatedPromotions = async ({ pageSize = 10, currentPage = 1 }:
         totalPages: totalPages,
         records: data.map(item => {
             return {
-                id: item.id, // Fixed syntax here
+                id: parseInt(item.id),
                 promotionCode: item.promotionCode,
                 description: item.description,
                 startDate: item.startDate ? item.startDate.toISOString() : null,
                 endDate: item.endDate ? item.endDate.toISOString() : null,
                 discountPercentage: item.discountPercentage,
+                imageUrl: item.imageUrl || '',
             } as PromotionModel;
         }),
     };

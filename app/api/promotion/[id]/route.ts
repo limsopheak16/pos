@@ -3,10 +3,10 @@ import prisma from "@/lib/prisma";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: number } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   console.log("params:", params); // Debug params
-  const { id } = params;
+  const { id } = await params;
 
   if (!id || isNaN(Number(id))) {
     return NextResponse.json(
@@ -16,7 +16,7 @@ export async function GET(
   }
 
   const promotion = await prisma.promotion.findUnique({
-    where: { id: Number(id) }, // Ensure ID is a number
+    where: { id: String(id) },
   });
 
   if (!promotion) {
@@ -28,9 +28,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: number } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
 
   if (!id || isNaN(Number(id))) {
     return NextResponse.json(
@@ -50,7 +50,7 @@ export async function PUT(
     } = body;
 
     const updatedPromotion = await prisma.promotion.update({
-      where: { id: Number(id) },
+      where: { id: String(id) },
       data: {
         promotionCode,
         description,
@@ -77,9 +77,9 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: number } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
 
   if (!id || isNaN(Number(id))) {
     return NextResponse.json(
@@ -90,7 +90,7 @@ export async function DELETE(
 
   try {
     const deletedPromotion = await prisma.promotion.delete({
-      where: { id: Number(id) }, // Ensure the ID is correctly handled as a number
+      where: { id: String(id) },
     });
 
     return NextResponse.json({

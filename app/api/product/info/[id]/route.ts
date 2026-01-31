@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma'; // Update with your Prisma setup
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 
   try {
     const product = await prisma.product.findUnique({
-      where: { id: Number(id) },
+      where: { id: String(id) },
     });
 
     if (!product) {
@@ -15,6 +15,6 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
     return NextResponse.json(product);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch product detSails' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch product details' }, { status: 500 });
   }
 }

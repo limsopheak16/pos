@@ -2,15 +2,15 @@ import prisma from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
 
 // Update a product by ID
-export async function PUT(request: NextRequest, { params }: { params: { id: number } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params; // Extract product ID from URL
+    const { id } = await params; // Extract product ID from URL
     const body = await request.json();
     const { nameEn, nameKh, categoryId, sku, updatedBy } = body;
 
     // Update the product in the database
     const updatedProduct = await prisma.product.update({
-      where: { id: Number(id) }, // Convert id to number if stored as an integer
+      where: { id: String(id) }, // Convert id to string
       data: {
         nameEn,
         nameKh,
@@ -35,13 +35,13 @@ export async function PUT(request: NextRequest, { params }: { params: { id: numb
 }
 
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: number } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-      const { id } = params; // Extract product ID from URL
+      const { id } = await params; // Extract product ID from URL
   
       // Delete the product from the database
       await prisma.product.delete({
-        where: { id: Number(id) }, // Convert id to number if stored as an integer
+        where: { id: String(id) }, // Convert id to string
       });
   
       return NextResponse.json({
@@ -55,17 +55,17 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: n
         { status: 500 }
       );
     }
-  }
+}
 
 
 
 
-  export async function GET(request: NextRequest, { params }: { params: { id: number } }) {
+  export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-      const { id } = params; 
+      const { id } = await params; 
   
       const product = await prisma.product.findUnique({
-        where: { id: Number(id) },
+        where: { id: String(id) },
       });
   
       if (!product) {

@@ -32,7 +32,7 @@ export const getPaginatedSupplier = async ({ pageSize = 10, currentPage = 1 }: {
         totalPages: totalPages,
         records: data.map(item => {
             return {
-                id: item.id,
+                id: parseInt(item.id),
                 supplierName: item.supplierName,
                 contactName: item.contactName ?? null,
                 contactEmail: item.contactEmail ?? null,

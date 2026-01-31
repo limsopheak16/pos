@@ -11,7 +11,7 @@ async function main() {
   try {
     const role = await prisma.role.create({
       data: {
-        id: 1,
+        id: "1",
         name: "Admin",
       },
     });
@@ -26,7 +26,7 @@ async function main() {
         username,
         email,
         password: hashedPassword,
-        roleId: 1,
+        roleId: "1",
       },
     });
 
