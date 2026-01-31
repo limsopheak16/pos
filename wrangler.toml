@@ -1,0 +1,9 @@
+name = "pos-app"
+compatibility_date = "2026-01-31"
+compatibility_flags = ["nodejs_compat"]
+
+[build]
+command = "npm run build"
+
+[env.production]
+vars = { NODE_ENV = "production" }
