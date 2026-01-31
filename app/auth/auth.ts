@@ -13,7 +13,7 @@ export async function signup(
   name: string,
   email: string,
   password: string,
-  roleId: number
+  roleId: string
 ): Promise<void> {
   // 3. Check if the user's email already exists
   const existingUser = await prisma.user.findUnique({
@@ -56,10 +56,11 @@ export async function signupWithFormData(
 ): Promise<FormState> {
   // 1. Validate form fields
   const validatedFields = SignupFormSchema.safeParse({
-    name: formData.get("name"),
+    username: formData.get("username"),
     email: formData.get("email"),
     password: formData.get("password"),
-    roleId: formData.get("roleId"),
+    confirmPassword: formData.get("confirmPassword"),
+    roleId: formData.get("roleId") || "cml1rejap0002dm7wu4nb16u1", // Default to customer role
   });
 
   // If any form fields are invalid, return early
@@ -70,7 +71,7 @@ export async function signupWithFormData(
   }
 
   // 2. Prepare data for insertion into database
-  const { name, email, password, roleId } = validatedFields.data;
+  const { username, email, password, roleId } = validatedFields.data;
 
   // 3. Check if the user's email already exists
   const existingUser = await prisma.user.findUnique({
@@ -86,10 +87,10 @@ export async function signupWithFormData(
   // Hash the user's password
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // 3. Insert the user into the database or call an Auth Provider's API
+  // 4. Insert the user into the database
   const data = await prisma.user.create({
     data: {
-      username: name,
+      username,
       email,
       password: hashedPassword,
       roleId,
@@ -104,9 +105,11 @@ export async function signupWithFormData(
     };
   }
 
-  // 4. Create a session for the user
-  const userId = user.id.toString();
-  await createSession(userId);
+  // 5. Return success message (don't create session, let them login)
+  return {
+    success: true,
+    message: "Account created successfully! Please login.",
+  };
 }
 
 export async function login(email: string, password: string): Promise<void> {

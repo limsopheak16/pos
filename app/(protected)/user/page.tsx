@@ -1,12 +1,28 @@
 import React from "react";
 import PageWrapper from "@/components/page-wrapper";
 import { PageTableView } from "./page-tableview";
-import { getPaginatedUsers } from "@/services/userServices";
+import { staticUsers } from "@/data/static-data";
 
 
-const UserPage = async ({ searchParams }: { searchParams: Record<string, string> }) => {
-  const page = parseInt(searchParams.page || "1");
-  const data = await getPaginatedUsers({ pageSize: 10, currentPage: page });
+const UserPage = async ({ searchParams }: { searchParams: Promise<Record<string, string>> }) => {
+  const resolvedSearchParams = await searchParams;
+  const page = parseInt(resolvedSearchParams.page || "1");
+  
+  // Simulate pagination with static data
+  const pageSize = 10;
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedUsers = staticUsers.slice(startIndex, endIndex);
+
+  const data = {
+    pageSize,
+    currentPage: page,
+    prevPage: page > 1 ? page - 1 : null,
+    nextPage: endIndex < staticUsers.length ? page + 1 : null,
+    totalItems: staticUsers.length,
+    totalPages: Math.ceil(staticUsers.length / pageSize),
+    records: paginatedUsers
+  };
 
   return <PageWrapper>
     <PageTableView title="Users" data={data} />

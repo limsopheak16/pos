@@ -28,23 +28,24 @@ const {token} = useContext(AppInfoContext);
   // Fetch supplier details based on the ID
   useEffect(() => {
     if (id) {
-      const fetchSupplierData = async (supplierId: string | number) => {
+      const fetchSupplierData = async (supplierId: string) => {
         try {
-          const response = await fetch(`/api/supplier/${supplierId}`);
+          // Use static API endpoint
+          const response = await fetch(`/api/static-suppliers/${supplierId}`);
           if (response.ok) {
             const result = await response.json();
             const data = result.data;
 
             setFormData({
-              supplierName: data.supplierName || "",
-              contactName: data.contactName || "",
-              contactEmail: data.contactEmail || "",
-              contactPhone: data.contactPhone || "",
-              addressLine1: data.addressLine1 || "",
-              addressLine2: data.addressLine2 || "",
-              province: data.province || "",
-              websiteUrl: data.websiteUrl || "",
-              taxIdentification: data.taxIdentification || "",
+              supplierName: data.name || "",
+              contactName: data.contactPerson || "",
+              contactEmail: data.email || "",
+              contactPhone: data.phone || "",
+              addressLine1: data.address || "",
+              addressLine2: "",
+              province: "",
+              websiteUrl: "",
+              taxIdentification: "",
               imageUrl: data.imageUrl || "",
             });
           } else {
@@ -55,11 +56,15 @@ const {token} = useContext(AppInfoContext);
         }
       };
 
-      const numericId = Number(id);
-      if (!isNaN(numericId)) {
-        fetchSupplierData(numericId);
+      // Handle both numeric and string IDs like "SUP001"
+      const idString = Array.isArray(id) ? id[0] : id;
+      if (idString.startsWith('SUP')) {
+        // Extract numeric part from "SUP001" -> "001"
+        const numericPart = idString.replace('SUP', '');
+        fetchSupplierData(numericPart);
       } else {
-        console.error("Invalid ID format:", id);
+        // Handle direct numeric IDs
+        fetchSupplierData(idString);
       }
     }
   }, [id]);

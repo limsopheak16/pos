@@ -1,8 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { useStaticUser } from "@/hooks/use-static-user";
 
 export default function Header() {
+  const { user, loading } = useStaticUser();
+
   return (
     <header className="w-full">
       <div className="px-4 py-4 flex justify-between items-center">
@@ -22,13 +26,20 @@ export default function Header() {
           </ol>
         </nav>
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm">
-            Log out
-          </Button>
-          <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
+          {loading ? (
+            <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+          ) : user ? (
+            <Avatar>
+              <AvatarImage src={user.imageUrl || ""} alt={user.username} />
+              <AvatarFallback>
+                {user.username.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          ) : (
+            <Avatar>
+              <AvatarFallback>?</AvatarFallback>
+            </Avatar>
+          )}
         </div>
       </div>
     </header>

@@ -1,10 +1,7 @@
 import React from "react";
-import { cookies } from "next/headers";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarNav } from "@/components/layout/sidebar-nav";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
-import { decrypt } from "../auth/stateless-session";
 import AppWrapper from "@/components/app-wrapper";
 
 const Layout = async ({
@@ -12,26 +9,29 @@ const Layout = async ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  const cookiesInstance = await cookies(); // Await the cookies() call
-  const defaultOpen = cookiesInstance.get("sidebar:state")?.value === "true";
-  const cookie = cookiesInstance.get("session")?.value;
-  const session = await decrypt(cookie);
-  console.log("cookie:", cookie);
-  const { userId } = session as { userId: number };
-
+  // No authentication required - using localStorage only
   return (
-    <AppWrapper appInfo={{ userId: userId, token: cookie }}>
-      <SidebarProvider defaultOpen={defaultOpen}>
-        <AppSidebar />
-        <section className="h-screen flex flex-col w-full">
-          <nav className="w-full flex items-center border-b ">
-            <SidebarTrigger className="ml-4 bg-red-100" />
+    <AppWrapper appInfo={{ userId: "static", token: "static" }}>
+      <div className="flex h-screen bg-gray-50">
+        {/* Sidebar */}
+        <SidebarNav />
+        
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Header */}
+          <nav className="w-full flex items-center border-b bg-white px-6 py-4">
             <Header />
           </nav>
-          {children}
+          
+          {/* Page Content */}
+          <main className="flex-1 overflow-y-auto p-6">
+            {children}
+          </main>
+          
+          {/* Footer */}
           <Footer />
-        </section>
-      </SidebarProvider>
+        </div>
+      </div>
     </AppWrapper>
   );
 };

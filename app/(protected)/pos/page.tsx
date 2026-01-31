@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Minus, Plus, ShoppingCart, User, X } from "lucide-react";
 
@@ -17,13 +17,32 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import Image from "next/image";
+import { ProductGrid } from "@/components/pos/product-grid";
+import { staticCustomers } from "@/data/static-data";
 
 interface Product {
   id: string;
   name: string;
-  price: number;
-  image: string;
+  category: string;
+  price: string;
+  stock: number;
+  status: string;
+}
+
+interface ProductCategory {
+  id: string;
+  name: string;
+}
+
+interface Customer {
+  id: string;
+  name: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  totalOrders: number;
+  totalSpent: number;
 }
 
 interface CartItem extends Product {
@@ -32,31 +51,55 @@ interface CartItem extends Product {
 
 export default function POSPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<ProductCategory[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  const products: Product[] = [
-    { id: "1", name: "T-Shirt", price: 19.99, image: "/placeholder.svg" },
-    { id: "2", name: "Jeans", price: 49.99, image: "/placeholder.svg" },
-    { id: "3", name: "Sneakers", price: 79.99, image: "/placeholder.svg" },
-    { id: "4", name: "Hat", price: 14.99, image: "/placeholder.svg" },
-    { id: "5", name: "Socks", price: 9.99, image: "/placeholder.svg" },
-    { id: "6", name: "T-Shirt 2", price: 19.99, image: "/placeholder.svg" },
-    { id: "7", name: "Jeans 2", price: 49.99, image: "/placeholder.svg" },
-    { id: "8", name: "Sneakers 2", price: 79.99, image: "/placeholder.svg" },
-    { id: "9", name: "Hat 2", price: 14.99, image: "/placeholder.svg" },
-    { id: "10", name: "Socks 2", price: 9.99, image: "/placeholder.svg" },
-    { id: "11", name: "T-Shirt", price: 19.99, image: "/placeholder.svg" },
-    { id: "12", name: "Jeans", price: 49.99, image: "/placeholder.svg" },
-    { id: "13", name: "Sneakers", price: 79.99, image: "/placeholder.svg" },
-    { id: "14", name: "Hat", price: 14.99, image: "/placeholder.svg" },
-    { id: "15", name: "Socks", price: 9.99, image: "/placeholder.svg" },
-    { id: "16", name: "T-Shirt 2", price: 19.99, image: "/placeholder.svg" },
-    { id: "17", name: "Jeans 2", price: 49.99, image: "/placeholder.svg" },
-    { id: "18", name: "Sneakers 2", price: 79.99, image: "/placeholder.svg" },
-    { id: "19", name: "Hat 2", price: 14.99, image: "/placeholder.svg" },
-    { id: "20", name: "Socks 2", price: 9.99, image: "/placeholder.svg" },
-  ];
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch static products
+      const productResponse = await fetch("/api/static-products");
+      const productResult = await productResponse.json();
+      if (productResult.data) {
+        setProducts(productResult.data.records);
+      }
+
+      // Use static customers
+      const posCustomers = staticCustomers.map(customer => ({
+        id: customer.id,
+        name: `${customer.firstName} ${customer.lastName}`,
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+        email: customer.email,
+        phone: customer.phone,
+        totalOrders: customer.totalOrders,
+        totalSpent: customer.totalSpent
+      }));
+      setCustomers(posCustomers);
+
+      // Generate categories from products
+      const allProducts = productResult.data?.records || [];
+      const uniqueCategories = Array.from(new Set(allProducts.map((p: any) => p.category)));
+      const categoryList = uniqueCategories.map((cat, index) => ({
+        id: String(index + 1),
+        name: String(cat)
+      }));
+      setCategories(categoryList);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const addToCart = (product: Product) => {
     setCart((current) => {
@@ -89,44 +132,76 @@ export default function POSPage() {
   };
 
   const subtotal = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) => sum + (parseFloat(item.price.replace('$', ''))) * item.quantity,
     0
   );
   const vat = subtotal * 0.1; // 10% VAT
   const total = subtotal + vat - discount;
+
+  const getProductPrice = (product: Product) => {
+    return parseFloat(product.price.replace('$', ''));
+  };
+
+  const completeSale = async () => {
+    if (cart.length === 0) return;
+    
+    try {
+      const saleData = {
+        transactionCode: `SALE-${Date.now()}`,
+        transactionDate: new Date().toISOString(),
+        totalAmount: subtotal,
+        totalDiscountAmount: discount,
+        vatAmount: vat,
+        grandTotalAmount: total,
+        paymentMethod: "Cash",
+        customerId: selectedCustomer || null,
+        items: cart.map(item => ({
+          productId: item.id,
+          quantity: item.quantity,
+          unitPrice: getProductPrice(item),
+          discountPercentage: 0,
+          discountAmount: 0,
+          vatPercentage: 10,
+          vatAmount: getProductPrice(item) * item.quantity * 0.1,
+          totalAmount: getProductPrice(item) * item.quantity,
+          grandTotalAmount: getProductPrice(item) * item.quantity * 1.1,
+        }))
+      };
+
+      const response = await fetch("/api/sale", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(saleData),
+      });
+
+      if (response.ok) {
+        setCart([]);
+        setSelectedCustomer("");
+        setDiscount(0);
+        alert("Sale completed successfully!");
+      } else {
+        alert("Failed to complete sale");
+      }
+    } catch (error) {
+      console.error("Error completing sale:", error);
+      alert("Error completing sale");
+    }
+  };
 
   return (
     <div className="flex max-h-[892px] bg-gray-100">
       {/* Products List - Left Side */}
       <div className="flex flex-col w-2/3 p-4 gap-4">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Sale Item Master</h1>
-          <Input placeholder="Search products..." className="w-64 bg-white" />
+          <h1 className="text-2xl font-bold">Point of Sale</h1>
         </div>
 
-        <ScrollArea className="flex-1 bg-white rounded-lg shadow-md p-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {products.map((product) => (
-             <Card
-             key={product.id}
-             className="p-4 cursor-pointer hover:shadow-lg transition-shadow"
-             onClick={() => addToCart(product)}
-           >
-             <Image
-               src={product.image}
-               alt={product.name}
-               width={128} // Set the desired width
-               height={128} // Set the desired height
-               className="w-full h-32 object-cover rounded-md mb-2"
-             />
-             <h3 className="font-medium">{product.name}</h3>
-             <p className="text-sm text-gray-500">
-               ${product.price.toFixed(2)}
-             </p>
-           </Card>
-            ))}
-          </div>
-        </ScrollArea>
+        <ProductGrid
+          onProductSelect={addToCart}
+          loading={loading}
+        />
 
         <div className="grid grid-cols-3 gap-4">
           <div>
@@ -139,8 +214,12 @@ export default function POSPage() {
                 <SelectValue placeholder="Select customer" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">John Doe</SelectItem>
-                <SelectItem value="2">Jane Smith</SelectItem>
+                <SelectItem value="none">Select customer</SelectItem>
+                {customers.map((customer) => (
+                  <SelectItem key={customer.id} value={customer.id}>
+                    {customer.firstName} {customer.lastName}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -148,7 +227,7 @@ export default function POSPage() {
             <Label>Cashier</Label>
             <div className="flex items-center gap-2 p-2 bg-white rounded-md">
               <User className="w-4 h-4" />
-              <span>James Wilson</span>
+              <span>Admin User</span>
             </div>
           </div>
           <div>
@@ -169,45 +248,46 @@ export default function POSPage() {
 
         <ScrollArea className="flex-1">
           <div className="space-y-4">
-            {cart.map((item) => (
-              <div key={item.id} className="flex items-center gap-4">
-                <Image
-                  src={item.image}
-                  alt={item.name}
-                  className="w-12 h-12 object-cover rounded"
-                />
-                <div className="flex-1">
-                  <h3 className="font-medium">{item.name}</h3>
-                  <p className="text-sm text-gray-500">
-                    ${item.price.toFixed(2)}
-                  </p>
+            {cart.map((item) => {
+              const price = getProductPrice(item);
+              return (
+                <div key={item.id} className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center">
+                    <span className="text-2xl">🛍️</span>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-medium">{item.name}</h3>
+                    <p className="text-sm text-gray-500">
+                      ${price.toFixed(2)} x {item.quantity}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => updateQuantity(item.id, -1)}
+                    >
+                      <Minus className="w-4 h-4" />
+                    </Button>
+                    <span className="w-8 text-center">{item.quantity}</span>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => updateQuantity(item.id, 1)}
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeFromCart(item.id)}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => updateQuantity(item.id, -1)}
-                  >
-                    <Minus className="w-4 h-4" />
-                  </Button>
-                  <span className="w-8 text-center">{item.quantity}</span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => updateQuantity(item.id, 1)}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeFromCart(item.id)}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </ScrollArea>
 
@@ -239,7 +319,12 @@ export default function POSPage() {
             <span>Total</span>
             <span>${total.toFixed(2)}</span>
           </div>
-          <Button className="w-full bg-sky-800" size="lg">
+          <Button 
+            className="w-full bg-sky-800" 
+            size="lg"
+            disabled={cart.length === 0}
+            onClick={completeSale}
+          >
             Complete Sale
           </Button>
         </div>

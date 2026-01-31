@@ -6,10 +6,10 @@ import { Label } from "@/components/ui/label";
 import { loginWithFormData } from "@/app/auth/auth";
 import Link from "next/link";
 import { useFormStatus } from "react-dom";
-import { useFormState } from "react-dom"; // Updated import
+import { useActionState } from "react";
 
 export function LoginForm() {
-  const [state, action] = useFormState(loginWithFormData, undefined); // Updated hook
+  const [state, action] = useActionState(loginWithFormData, undefined);
 
   return (
     <form action={action}>
@@ -19,7 +19,7 @@ export function LoginForm() {
           <Input
             id="email"
             name="email"
-            placeholder="john.doe@demo.com"
+            placeholder="Enter your email address"
             type="email"
           />
           {state?.errors?.email && (
@@ -34,7 +34,7 @@ export function LoginForm() {
             id="password"
             type="password"
             name="password"
-            placeholder="password"
+            placeholder="Enter your password"
           />
           {state?.errors?.password && (
             <p className="text-sm text-red-500">{state.errors.password}</p>
@@ -58,8 +58,8 @@ export function LoginButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button aria-disabled={pending} type="submit" className="mt-4 w-full">
-      {pending ? "Submitting..." : "Login"}
+    <Button aria-disabled={pending} type="submit" className="mt-4 w-full bg-blue-600 hover:bg-blue-700">
+      {pending ? "Signing In..." : "Sign In"}
     </Button>
   );
 }

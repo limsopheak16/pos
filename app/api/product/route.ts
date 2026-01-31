@@ -4,7 +4,7 @@ import { NextResponse, NextRequest } from "next/server";
 
 
 export interface ProductModel {
-  id: number;
+  id: string;
   nameEn: string;
   nameKh: string;
   categoryNameEn: string;

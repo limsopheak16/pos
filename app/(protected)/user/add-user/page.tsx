@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 
 interface Role {
-  id: number;
+  id: string;
   name: string;
 }
 
@@ -17,7 +17,7 @@ const AddUserPage = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [roleId, setRoleId] = useState<number | undefined>();
+  const [roleId, setRoleId] = useState<string | undefined>();
   const [isActive, setIsActive] = useState(true);
   const [imageFile, setImageFile] = useState<File | undefined>();
   const [roles, setRoles] = useState<Role[]>([]);
@@ -176,8 +176,8 @@ const AddUserPage = () => {
                 className="border p-1"
                 name="roleId"
                 id="roleId"
-                value={roleId}
-                onChange={(e) => setRoleId(Number(e.target.value))}
+                value={roleId || ""}
+                onChange={(e) => setRoleId(e.target.value || undefined)}
               >
                 <option value="">Select Role</option>
                 {roles.map((role) => (

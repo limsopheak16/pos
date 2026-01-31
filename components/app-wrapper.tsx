@@ -3,7 +3,7 @@
 import React, { createContext, useState } from "react";
 
 interface AppInfo {
-  userId?: number;
+  userId?: string;
   token?: string;
 }
 

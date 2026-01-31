@@ -81,9 +81,7 @@ export const PageTableView: React.FC<Props> = ({ title, data }) => {
                 <TableCell>{new Date(item.startDate).toLocaleDateString()}</TableCell>
                 <TableCell>{new Date(item.endDate).toLocaleDateString()}</TableCell>
                 <TableCell>
-                  {item.discountPercentage !== undefined && item.discountPercentage !== null
-                    ? `${Number(item.discountPercentage).toFixed(2)}%`
-                    : 'N/A'}
+                  {item.discountPercentage ? `${item.discountPercentage}%` : 'N/A'}
                 </TableCell>
               </TableRow>
             ))}

@@ -75,34 +75,30 @@ export const PageTableView: React.FC<Props> = ({ title, data }) => {
         <Table>
           <TableHeader>
             <TableRow>
-            <TableHead>Id</TableHead>
-              <TableHead>Supplier Name</TableHead>
+              <TableHead>ID</TableHead>
               <TableHead>Reference Number</TableHead>
               <TableHead>Stock In Date</TableHead>
               <TableHead>Supplier Name</TableHead>
-              <TableHead>Number Of item</TableHead>
+              <TableHead>Number Of Items</TableHead>
               <TableHead>Purchase Amount</TableHead>
-
             </TableRow>
           </TableHeader>
           <TableBody>
-  {paginatedData.records.map((item) => (
-    <TableRow
-      key={item.id}
-      className="cursor-pointer hover:bg-gray-100"
-      onClick={() => router.push(`/stockin/add-detail/${item.id}`)}    >
-        <TableCell>{item.id}</TableCell>
-      <TableCell>{item.supplierName}</TableCell>
-      <TableCell>{item.referenceNumber}</TableCell>
-      <TableCell>{new Date(item.stockInDate).toLocaleDateString()}</TableCell>
-      <TableCell>{item.supplierName}</TableCell>
-      <TableCell>{item.numberOfItems}</TableCell>
-      <TableCell>{item.purchaseAmount}</TableCell>
-    </TableRow>
-  ))}
-</TableBody>
-
-
+            {paginatedData.records.map((item) => (
+              <TableRow
+                key={item.id}
+                className="cursor-pointer hover:bg-gray-100"
+                onClick={() => router.push(`/stockin/add-detail/${item.id}`)}    
+              >
+                <TableCell>{item.id}</TableCell>
+                <TableCell>{item.referenceNumber}</TableCell>
+                <TableCell>{new Date(item.stockInDate).toLocaleDateString()}</TableCell>
+                <TableCell>{item.supplierName}</TableCell>
+                <TableCell>{item.numberOfItems}</TableCell>
+                <TableCell>${item.purchaseAmount.toFixed(2)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
         </Table>
       </div>
       {/* Pagination */}

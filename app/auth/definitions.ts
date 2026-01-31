@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 export const SignupFormSchema = z.object({
-  name: z
+  username: z
     .string()
-    .min(2, { message: "Name must be at least 2 characters long." })
+    .min(2, { message: "Username must be at least 2 characters long." })
     .trim(),
   email: z.string().email({ message: "Please enter a valid email." }).trim(),
   password: z
@@ -15,7 +15,11 @@ export const SignupFormSchema = z.object({
       message: "Contain at least one special character.",
     })
     .trim(),
-  roleId: z.number(),
+  confirmPassword: z.string().min(1, { message: "Please confirm your password." }),
+  roleId: z.string().default("cml1rejap0002dm7wu4nb16u1"), // Default to customer role
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
 export const LoginFormSchema = z.object({
@@ -26,11 +30,13 @@ export const LoginFormSchema = z.object({
 export type FormState =
   | {
       errors?: {
-        name?: string[];
+        username?: string[];
         email?: string[];
         password?: string[];
+        confirmPassword?: string[];
       };
       message?: string;
+      success?: boolean;
     }
   | undefined;
 
