@@ -4,7 +4,6 @@ compatibility_flags = ["nodejs_compat"]
 
 [assets]
 directory = "deploy"
-binding = "ASSETS"
 
 [build]
 command = "npm run build:deploy"
