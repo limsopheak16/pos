@@ -10,7 +10,8 @@
     "db:generate": "npx prisma generate",
     "db:push": "npx prisma db push",
     "db:pull": "npx prisma db pull",
-    "db:seed": "npx tsc init/db/init.ts && node init/db/init.js"
+    "db:seed": "npx tsc init/db/init.ts && node init/db/init.js",
+    "build:deploy": "npm run build && node deploy.js"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.3.1",

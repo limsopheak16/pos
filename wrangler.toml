@@ -3,10 +3,11 @@ compatibility_date = "2026-01-31"
 compatibility_flags = ["nodejs_compat"]
 
 [assets]
-directory = ".next"
+directory = "deploy"
+binding = "ASSETS"
 
 [build]
-command = "npm run build"
+command = "npm run build:deploy"
 
 [env.production]
 vars = { NODE_ENV = "production" }
