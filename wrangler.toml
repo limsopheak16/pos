@@ -2,6 +2,9 @@ name = "pos-app"
 compatibility_date = "2026-01-31"
 compatibility_flags = ["nodejs_compat"]
 
+[assets]
+directory = ".next"
+
 [build]
 command = "npm run build"
 
